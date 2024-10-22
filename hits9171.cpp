@@ -45,7 +45,11 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
     int N = outEdges.size();
     vector<double> new_hubs(N, 0.0), new_authorities(N, 0.0);
 
-    for (int iter = 1; iter <= iterations || (iterations == 0 && computeError(hubs, new_hubs) > errorRate); ++iter) {
+    // Print initial (Base) values before starting iterations
+    printValues(authorities, hubs, 0);
+
+    int iter = 1;
+    while (true) {
         // Update authority scores: authorities[i] depends on the hub scores of pages linking to it
         for (int i = 0; i < N; ++i) {
             new_authorities[i] = 0.0;
@@ -66,15 +70,23 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
         normalize(new_hubs);
         normalize(new_authorities);
 
-        // Check for convergence
-        // if (computeError(hubs, new_hubs) < errorRate && computeError(authorities, new_authorities) < errorRate) {
-        //     break;
-        // }
-
+        // Print values for this iteration
         printValues(new_authorities, new_hubs, iter);
 
+        // Check for convergence if errorRate is provided (iterations <= 0)
+        if (iterations <= 0) {
+            if (computeError(hubs, new_hubs) < errorRate && computeError(authorities, new_authorities) < errorRate) {
+                break;
+            }
+        } else if (iter >= iterations) {
+            // If the number of iterations has reached the provided number, stop
+            break;
+        }
+
+        // Update the values for the next iteration
         hubs = new_hubs;
         authorities = new_authorities;
+        ++iter;
     }
 }
 
@@ -122,8 +134,6 @@ int main(int argc, char* argv[]) {
         fill(hubs.begin(), hubs.end(), init_val);
         fill(authorities.begin(), authorities.end(), init_val);
     }
-
-    printValues(authorities, hubs, 0);
 
     hitsAlgorithm(outEdges, inEdges, iterations, errorRate, hubs, authorities);
 
