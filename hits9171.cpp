@@ -4,8 +4,23 @@
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <iomanip> // for setting precision
 
 using namespace std;
+
+// Function to print hub and authority values with the required format
+void printValues(const vector<double>& authorities, const vector<double>& hubs, int iteration) {
+    if (iteration == 0) {
+        cout << "Base : " << iteration << " :";
+    } else {
+        cout << "Iter : " << iteration << " :";
+    }
+    for (size_t i = 0; i < authorities.size(); ++i) {
+        cout << fixed << setprecision(7);
+        cout << " A/H[ " << i << "]=" << authorities[i] << "/" << hubs[i];
+    }
+    cout << endl;
+}
 
 double computeError(const vector<double>& old_vals, const vector<double>& new_vals) {
     double error = 0.0;
@@ -26,35 +41,37 @@ void normalize(vector<double>& values) {
     }
 }
 
-void hitsAlgorithm(const vector<vector<int>>& adjList, int iterations, double errorRate, vector<double>& hubs, vector<double>& authorities) {
-    int N = adjList.size();
+void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>>& inEdges, int iterations, double errorRate, vector<double>& hubs, vector<double>& authorities) {
+    int N = outEdges.size();
     vector<double> new_hubs(N, 0.0), new_authorities(N, 0.0);
 
-    for (int iter = 0; iter < iterations || (iterations == 0 && computeError(hubs, new_hubs) > errorRate); ++iter) {
-        // Update authority scores
+    for (int iter = 1; iter <= iterations || (iterations == 0 && computeError(hubs, new_hubs) > errorRate); ++iter) {
+        // Update authority scores: authorities[i] depends on the hub scores of pages linking to it
         for (int i = 0; i < N; ++i) {
             new_authorities[i] = 0.0;
-            for (int neighbor : adjList[i]) {
+            for (int neighbor : inEdges[i]) {
                 new_authorities[i] += hubs[neighbor];
             }
         }
 
-        // Update hub scores
+        // Update hub scores: hubs[i] depends on the authority scores of pages it links to
         for (int i = 0; i < N; ++i) {
             new_hubs[i] = 0.0;
-            for (int neighbor : adjList[i]) {
+            for (int neighbor : outEdges[i]) {
                 new_hubs[i] += authorities[neighbor];
             }
         }
 
-        // Normalize
+        // Normalize the hub and authority values
         normalize(new_hubs);
         normalize(new_authorities);
 
         // Check for convergence
-        if (computeError(hubs, new_hubs) < errorRate && computeError(authorities, new_authorities) < errorRate) {
-            break;
-        }
+        // if (computeError(hubs, new_hubs) < errorRate && computeError(authorities, new_authorities) < errorRate) {
+        //     break;
+        // }
+
+        printValues(new_authorities, new_hubs, iter);
 
         hubs = new_hubs;
         authorities = new_authorities;
@@ -81,12 +98,14 @@ int main(int argc, char* argv[]) {
     // Read the graph
     int n, m;
     infile >> n >> m;
-    vector<vector<int>> adjList(n);
+    vector<vector<int>> outEdges(n);  // Outgoing edges
+    vector<vector<int>> inEdges(n);   // Incoming edges
 
     for (int i = 0; i < m; ++i) {
         int u, v;
         infile >> u >> v;
-        adjList[u].push_back(v);
+        outEdges[u].push_back(v);  // Edge from u -> v
+        inEdges[v].push_back(u);   // Edge to v from u (reverse for authority calculation)
     }
 
     // Initialize hub and authority values
@@ -104,18 +123,9 @@ int main(int argc, char* argv[]) {
         fill(authorities.begin(), authorities.end(), init_val);
     }
 
-    // Run the HITS algorithm
-    hitsAlgorithm(adjList, iterations, errorRate, hubs, authorities);
+    printValues(authorities, hubs, 0);
 
-    // Output the results
-    cout << "Hub values:\n";
-    for (double hub : hubs) {
-        cout << hub << "\n";
-    }
-    cout << "Authority values:\n";
-    for (double authority : authorities) {
-        cout << authority << "\n";
-    }
+    hitsAlgorithm(outEdges, inEdges, iterations, errorRate, hubs, authorities);
 
     return 0;
 }
