@@ -1,14 +1,20 @@
+/*
+Student Name: Suraj Kumar Ojha
+NJIT ID: 31669171
+Email: so299@njit.edu
+*/
+
 #include <iostream>
 #include <vector>
 #include <fstream>
 #include <cmath>
 #include <cstdlib>
 #include <limits>
-#include <iomanip> // for setting precision
+#include <iomanip> 
 
 using namespace std;
 
-// Function to print hub and authority values with the required format
+// Function to print hub and authority values
 void printValues(const vector<double>& authorities, const vector<double>& hubs, int iteration) {
     if (iteration == 0) {
         cout << "Base : " << iteration << " :";
@@ -45,12 +51,11 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
     int N = outEdges.size();
     vector<double> new_hubs(N, 0.0), new_authorities(N, 0.0);
 
-    // Print initial (Base) values before starting iterations
     printValues(authorities, hubs, 0);
 
     int iter = 1;
     while (true) {
-        // Update authority scores: authorities[i] depends on the hub scores of pages linking to it
+        
         for (int i = 0; i < N; ++i) {
             new_authorities[i] = 0.0;
             for (int neighbor : inEdges[i]) {
@@ -73,13 +78,12 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
         // Print values for this iteration
         printValues(new_authorities, new_hubs, iter);
 
-        // Check for convergence if errorRate is provided (iterations <= 0)
+        // Check for errorrate
         if (iterations <= 0) {
             if (computeError(hubs, new_hubs) < errorRate && computeError(authorities, new_authorities) < errorRate) {
                 break;
             }
         } else if (iter >= iterations) {
-            // If the number of iterations has reached the provided number, stop
             break;
         }
 
@@ -92,7 +96,7 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
-        cerr << "Usage: " << argv[0] << " <iterations or errorrate> <initialization> <filename>\n";
+        cerr << "Please input the iteration/errorRate, initial values and graph file name\n";
         return 1;
     }
 
@@ -101,23 +105,24 @@ int main(int argc, char* argv[]) {
     int initialization = stoi(argv[2]);
     string filename = argv[3];
 
+    // read number of vertices and edges from file
     ifstream infile(filename);
     if (!infile) {
         cerr << "Error opening file: " << filename << "\n";
         return 1;
     }
 
-    // Read the graph
     int n, m;
     infile >> n >> m;
-    vector<vector<int>> outEdges(n);  // Outgoing edges
-    vector<vector<int>> inEdges(n);   // Incoming edges
+    // create two separate vector for incoming and outgoing edges
+    vector<vector<int>> outEdges(n);  
+    vector<vector<int>> inEdges(n);   
 
     for (int i = 0; i < m; ++i) {
         int u, v;
         infile >> u >> v;
-        outEdges[u].push_back(v);  // Edge from u -> v
-        inEdges[v].push_back(u);   // Edge to v from u (reverse for authority calculation)
+        outEdges[u].push_back(v);  // for outgoing
+        inEdges[v].push_back(u);   // for incoming
     }
 
     // Initialize hub and authority values
@@ -135,7 +140,11 @@ int main(int argc, char* argv[]) {
         fill(authorities.begin(), authorities.end(), init_val);
     }
 
+
     hitsAlgorithm(outEdges, inEdges, iterations, errorRate, hubs, authorities);
+
+    // close the file
+    infile.close();
 
     return 0;
 }
