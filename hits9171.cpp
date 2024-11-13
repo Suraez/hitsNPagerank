@@ -40,10 +40,16 @@ void normalize(vector<double>& values) {
         sum += v * v;
     }
     sum = sqrt(sum);
-    for (double& v : values) {
-        v /= sum;
+
+    // Avoid division by zero
+    if (sum > 0) {
+        for (double& v : values) {
+            v /= sum;
+        }
     }
+    // If sum is zero, all values remain zero, avoiding NaN
 }
+
 
 void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>>& inEdges, int iterations, double errorRate, vector<double>& hubs, vector<double>& authorities) {
     int N = outEdges.size();

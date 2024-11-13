@@ -12,7 +12,6 @@ LAST FOUR NJIT ID: 9171 */
 
 using namespace std;
 
-// Function to calculate PageRank
 void pageRankAlgorithm(int n, int m, vector<vector<int>>& adjList, int N, double computeError, int init) {
     vector<double> rank(n, 0.0);
     vector<double> newRank(n, 0.0);
@@ -50,7 +49,6 @@ void pageRankAlgorithm(int n, int m, vector<vector<int>>& adjList, int N, double
     }
     cout << endl;
 
-    //starting iteration
     int iter = 0;
     bool stop = false;
     
