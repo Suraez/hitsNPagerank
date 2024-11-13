@@ -1,0 +1,13 @@
+G++ Compiler Version: 
+    g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+
+Compilation:
+    HITS: g++ hits9171.cpp -o hits
+    PageRank: g++ pgrk9171.cpp -o pgrk 
+
+Execution Instructions:
+    HITS: ./hits 10 1 samplegraph.txt
+    PageRank: ./pgrk 10 1 samplegraph.txt
+
+I HAVE READ THE COLLABORATION SECTION OF THE SYLLABUS. DOCUMENT 3 and PRP
+ADHERED.

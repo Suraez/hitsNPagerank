@@ -1,8 +1,6 @@
-/*
-Student Name: Suraj Kumar Ojha
-NJIT ID: 31669171
-Email: so299@njit.edu
-*/
+/* First Name: Suraj Kumar
+Last Name: Ojha
+LAST FOUR NJIT ID: 9171 */
 
 #include <iostream>
 #include <vector>

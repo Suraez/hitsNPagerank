@@ -1,8 +1,6 @@
-/*
-Student Name: Suraj Kumar Ojha
-NJIT ID: 31669171
-Email: so299@njit.edu
-*/
+/* First Name: Suraj Kumar
+Last Name: Ojha
+LAST FOUR NJIT ID: 9171 */
 
 
 #include <iostream>
@@ -48,7 +46,7 @@ void pageRankAlgorithm(int n, int m, vector<vector<int>>& adjList, int N, double
 
     cout << "Base : 0 :";
     for (int i = 0; i < n; i++) {
-        cout << " PR[" << i << "]=" << fixed << setprecision(7) << rank[i];
+        cout << " PR[ " << i << "]=" << fixed << setprecision(7) << rank[i];
     }
     cout << endl;
 
@@ -84,7 +82,7 @@ void pageRankAlgorithm(int n, int m, vector<vector<int>>& adjList, int N, double
 
         cout << "Iter : " << iter << " :";
         for (int i = 0; i < n; i++) {
-            cout << " PR[" << i << "]=" << fixed << setprecision(7) << newRank[i];
+            cout << " PR[ " << i << "]=" << fixed << setprecision(7) << newRank[i];
         }
         cout << endl;
 
