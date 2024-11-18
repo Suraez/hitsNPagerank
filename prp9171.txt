@@ -1,7 +1,11 @@
+/* First Name: Suraj Kumar
+Last Name: Ojha
+LAST FOUR NJIT ID: 9171 */
+
 G++ Compiler Version: 
     g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
 
-Compilation:
+Compilation Instructions:
     HITS: g++ hits9171.cpp -o hits
     PageRank: g++ pgrk9171.cpp -o pgrk 
 

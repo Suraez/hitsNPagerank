@@ -2,13 +2,11 @@
 Last Name: Ojha
 LAST FOUR NJIT ID: 9171 */
 
-
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <cmath>
 #include <iomanip>
-
 
 using namespace std;
 
@@ -18,6 +16,8 @@ void pageRankAlgorithm(int n, int m, vector<vector<int>>& adjList, int N, double
     vector<int> outDegree(n, 0);
     double d = 0.85;  // Damping factor
     double initVal;
+
+    bool largeGraph = (n > 10);
 
     // Initialize PageRank values
     switch (init) {
@@ -43,21 +43,22 @@ void pageRankAlgorithm(int n, int m, vector<vector<int>>& adjList, int N, double
         outDegree[i] = adjList[i].size();  // Out-degree
     }
 
-    cout << "Base : 0 :";
-    for (int i = 0; i < n; i++) {
-        cout << " PR[ " << i << "]=" << fixed << setprecision(7) << rank[i];
+    if (!largeGraph) {
+        cout << "Base : 0 :";
+        for (int i = 0; i < n; i++) {
+            cout << " PR[ " << i << "]=" << fixed << setprecision(7) << rank[i];
+        }
+        cout << endl;
     }
-    cout << endl;
 
     int iter = 0;
     bool stop = false;
-    
+
     while (!stop) {
         iter++;
-        bool converged = true;
-        
+
         for (int i = 0; i < n; i++) {
-            newRank[i] = (1 - d) / n;  
+            newRank[i] = (1 - d) / n;
         }
 
         // Update PageRank values based on incoming links
@@ -78,28 +79,38 @@ void pageRankAlgorithm(int n, int m, vector<vector<int>>& adjList, int N, double
             }
         }
 
-        cout << "Iter : " << iter << " :";
-        for (int i = 0; i < n; i++) {
-            cout << " PR[ " << i << "]=" << fixed << setprecision(7) << newRank[i];
-        }
-        cout << endl;
-
-        if (N > 0) {
-            if (iter >= N) {
-                stop = true;
+        if (!largeGraph) {
+            cout << "Iter : " << iter << " :";
+            for (int i = 0; i < n; i++) {
+                cout << " PR[ " << i << "]=" << fixed << setprecision(7) << newRank[i];
             }
-        } else if (N == 0) {
-            if (maxError < pow(10, -5)) {
+            cout << endl;
+        }
+
+        // Convergence conditions
+        if (largeGraph) {
+            if (maxError < pow(10, -5)) {  // Fixed convergence threshold for large graphs
                 stop = true;
             }
         } else {
-            int absN = abs(N);
-            if (maxError < pow(10, -absN)) {
+            if (N > 0 && iter >= N) {
+                stop = true;
+            } else if (N == 0 && maxError < pow(10, -5)) {
+                stop = true;
+            } else if (N < 0 && maxError < pow(10, -abs(N))) {
                 stop = true;
             }
         }
 
         rank = newRank;  // Update rank values for the next iteration
+    }
+
+    // Print final PageRank values if n > 10
+    if (largeGraph) {
+        cout << "Iter :" << iter << endl;
+        for (int i = 0; i < n; i++) {
+            cout << "P[" << i << "]=" << fixed << setprecision(7) << rank[i] << endl;
+        }
     }
 }
 
@@ -133,12 +144,18 @@ int main(int argc, char* argv[]) {
     file.close();
 
     double computeError;
-    if (N == 0) {
-        computeError = pow(10, -5);  
-    } else if (N < 0) {
-        computeError = pow(10, -abs(N)); 
+    if (n > 10) {
+        computeError = pow(10, -5);  // Fixed error threshold for large graphs
+        init = -1;  // Default initialization for large graphs
+        N = -1;  // Ignore user-provided value of N
     } else {
-        computeError = 0.0000001; 
+        if (N == 0) {
+            computeError = pow(10, -5);
+        } else if (N < 0) {
+            computeError = pow(10, -abs(N));
+        } else {
+            computeError = 0.0000001;
+        }
     }
 
     pageRankAlgorithm(n, m, adjList, N, computeError, init);

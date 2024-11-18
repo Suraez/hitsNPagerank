@@ -8,22 +8,30 @@ LAST FOUR NJIT ID: 9171 */
 #include <cmath>
 #include <cstdlib>
 #include <limits>
-#include <iomanip> 
+#include <iomanip>
 
 using namespace std;
 
 // Function to print hub and authority values
-void printValues(const vector<double>& authorities, const vector<double>& hubs, int iteration) {
-    if (iteration == 0) {
-        cout << "Base : " << iteration << " :";
-    } else {
-        cout << "Iter : " << iteration << " :";
+void printValues(const vector<double>& authorities, const vector<double>& hubs, int iteration, bool largeGraph) {
+    if (!largeGraph) {
+        if (iteration == 0) {
+            cout << "Base : " << iteration << " :";
+        } else {
+            cout << "Iter : " << iteration << " :";
+        }
+        for (size_t i = 0; i < authorities.size(); ++i) {
+            cout << fixed << setprecision(7);
+            cout << " A/H[ " << i << "]=" << authorities[i] << "/" << hubs[i];
+        }
+        cout << endl;
+    } else if (largeGraph && iteration > 0) {
+        cout << "Iter   : " << iteration << endl;
+        for (size_t i = 0; i < authorities.size(); ++i) {
+            cout << fixed << setprecision(7);
+            cout << "A/H[ " << i << "]=" << authorities[i] << "/" << hubs[i] << endl;
+        }
     }
-    for (size_t i = 0; i < authorities.size(); ++i) {
-        cout << fixed << setprecision(7);
-        cout << " A/H[ " << i << "]=" << authorities[i] << "/" << hubs[i];
-    }
-    cout << endl;
 }
 
 double computeError(const vector<double>& old_vals, const vector<double>& new_vals) {
@@ -50,16 +58,16 @@ void normalize(vector<double>& values) {
     // If sum is zero, all values remain zero, avoiding NaN
 }
 
-
-void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>>& inEdges, int iterations, double errorRate, vector<double>& hubs, vector<double>& authorities) {
+void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>>& inEdges, int iterations, double errorRate, vector<double>& hubs, vector<double>& authorities, bool largeGraph) {
     int N = outEdges.size();
     vector<double> new_hubs(N, 0.0), new_authorities(N, 0.0);
 
-    printValues(authorities, hubs, 0);
+    if (!largeGraph) {
+        printValues(authorities, hubs, 0, largeGraph);
+    }
 
     int iter = 1;
     while (true) {
-        
         for (int i = 0; i < N; ++i) {
             new_authorities[i] = 0.0;
             for (int neighbor : inEdges[i]) {
@@ -79,10 +87,11 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
         normalize(new_hubs);
         normalize(new_authorities);
 
-        // Print values for this iteration
-        printValues(new_authorities, new_hubs, iter);
+        if (!largeGraph) {
+            printValues(new_authorities, new_hubs, iter, largeGraph);
+        }
 
-        // Check for errorrate
+        // Check for errorRate
         if (iterations <= 0) {
             if (computeError(hubs, new_hubs) < errorRate && computeError(authorities, new_authorities) < errorRate) {
                 break;
@@ -95,6 +104,11 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
         hubs = new_hubs;
         authorities = new_authorities;
         ++iter;
+    }
+
+    // Print final values for large graphs
+    if (largeGraph) {
+        printValues(new_authorities, new_hubs, iter, largeGraph);
     }
 }
 
@@ -118,15 +132,26 @@ int main(int argc, char* argv[]) {
 
     int n, m;
     infile >> n >> m;
-    // create two separate vector for incoming and outgoing edges
-    vector<vector<int>> outEdges(n);  
-    vector<vector<int>> inEdges(n);   
+
+    // Determine if the graph is large
+    bool largeGraph = (n > 10);
+
+    // Adjust parameters for large graphs
+    if (largeGraph) {
+        errorRate = pow(10, -5);  // Fixed error rate
+        initialization = -1;     // Initial values 1/n
+        iterations = -1;         // Ignore user-provided iterations
+    }
+
+    // Create two separate vectors for incoming and outgoing edges
+    vector<vector<int>> outEdges(n);
+    vector<vector<int>> inEdges(n);
 
     for (int i = 0; i < m; ++i) {
         int u, v;
         infile >> u >> v;
-        outEdges[u].push_back(v);  // for outgoing
-        inEdges[v].push_back(u);   // for incoming
+        outEdges[u].push_back(v);  // For outgoing
+        inEdges[v].push_back(u);   // For incoming
     }
 
     // Initialize hub and authority values
@@ -144,10 +169,9 @@ int main(int argc, char* argv[]) {
         fill(authorities.begin(), authorities.end(), init_val);
     }
 
+    hitsAlgorithm(outEdges, inEdges, iterations, errorRate, hubs, authorities, largeGraph);
 
-    hitsAlgorithm(outEdges, inEdges, iterations, errorRate, hubs, authorities);
-
-    // close the file
+    // Close the file
     infile.close();
 
     return 0;
