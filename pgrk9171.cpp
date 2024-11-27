@@ -89,15 +89,15 @@ void pageRankAlgorithm(int n, int m, vector<vector<int>>& adjList, int N, double
 
         // Convergence conditions
         if (largeGraph) {
-            if (maxError < pow(10, -5)) {  // Fixed convergence threshold for large graphs
+            if (maxError <= pow(10, -5)) {  // Fixed convergence threshold for large graphs
                 stop = true;
             }
         } else {
             if (N > 0 && iter >= N) {
                 stop = true;
-            } else if (N == 0 && maxError < pow(10, -5)) {
+            } else if (N == 0 && maxError <= pow(10, -5)) {
                 stop = true;
-            } else if (N < 0 && maxError < pow(10, -abs(N))) {
+            } else if (N < 0 && maxError <= pow(10, -abs(N))) {
                 stop = true;
             }
         }

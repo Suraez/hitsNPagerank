@@ -93,7 +93,7 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
 
         // Check for errorRate
         if (iterations <= 0) {
-            if (computeError(hubs, new_hubs) < errorRate && computeError(authorities, new_authorities) < errorRate) {
+            if (computeError(hubs, new_hubs) <= errorRate && computeError(authorities, new_authorities) <= errorRate) {
                 break;
             }
         } else if (iter >= iterations) {
