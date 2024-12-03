@@ -79,7 +79,7 @@ void hitsAlgorithm(const vector<vector<int>>& outEdges, const vector<vector<int>
         for (int i = 0; i < N; ++i) {
             new_hubs[i] = 0.0;
             for (int neighbor : outEdges[i]) {
-                new_hubs[i] += authorities[neighbor];
+                new_hubs[i] += new_authorities[neighbor];
             }
         }
 
